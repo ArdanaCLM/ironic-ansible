@@ -1,0 +1,85 @@
+#
+# (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2017 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+---
+
+- include: _write_conf.yml
+  src: "{{ ironic_component }}-logging.conf.j2"
+  dest: "{{ ironic_service_conf_dir }}/{{ ironic_component }}-logging.conf"
+
+- name: ironic-common | configure | notify on ironic.conf change
+  shell: echo "notify change"
+  register: ardana_notify_ironic_common_restart_required
+  when: write_conf_result.changed
+
+- name: ironic-common | configure | create ironic config files and directories
+  copy:
+    src: "{{ item }}"
+    dest: "{{ ironic_service_conf_dir }}"
+    owner: "{{ ironic_user }}"
+    group: "{{ ironic_group }}"
+    mode: 0640
+  with_items:
+    - policy.json
+    - rootwrap.conf
+    - rootwrap.d
+    - ironic_api_audit_map.conf
+  register: ardana_notify_ironic_common_restart_required
+
+- name: ironic-common | configure | create ardanadecrypt file
+  copy:
+    src: "{{ item }}"
+    dest: "/tmp"
+    owner: "{{ ironic_user }}"
+    group: "{{ ironic_group }}"
+    mode: 0777
+  with_items:
+    - ardanadecrypt.py
+  when: oneview_enabled
+
+- name: ironic-common | configure | decrypt the oneview password
+  command: ./ardanadecrypt.py -d "{{ ironic_oneview.encrypted_password  }}"
+  args:
+    chdir: "/tmp"
+  register: oneview_password
+  environment:
+    ARDANA_USER_PASSWORD_ENCRYPT_KEY: "{{ lookup('env','ARDANA_USER_PASSWORD_ENCRYPT_KEY') }}"
+  when: oneview_enabled
+
+- name: ironic-common | configure | delete ardanadecrypt file
+  file:
+    path: "/tmp/ardanadecrypt.py"
+    state: absent
+  when: oneview_enabled
+
+- name: ironic-common | configure | Create ironic audit logging directory
+  become: yes
+  file:
+    path: "{{ ironic_audit.log_location }}"
+    owner: "{{ ironic_user }}"
+    group: "{{ ironic_group }}"
+    mode: "0755"
+    state: directory
+  when: ironic_audit.enable
+
+- name: ironic-common | configure | Create a symbolic link for rootwrap.conf
+  file:
+    src: "{{ ironic_service_conf_dir }}"
+    dest: /etc/ironic
+    owner: "{{ ironic_user }}"
+    group: "{{ ironic_group }}"
+    force: yes
+    state: link
