@@ -1,0 +1,47 @@
+#
+# (c) Copyright 2017 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2017 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+---
+ironic_conductor_packages:
+    - ipxe
+    - syslinux-common
+    - pxelinux
+    - ipmitool
+    - tftpd-hpa
+    - qemu-utils
+    - dosfstools
+    - open-iscsi
+    - rpm2cpio
+
+ironic_conductor_tftp_service: tftpd-hpa
+
+ironic_conductor_ipxe_files:
+  - {
+      src: "/usr/lib/ipxe/undionly.kpxe",
+      dest: "{{ ironic_images_path }}/undionly.kpxe"
+    }
+  - {
+      src: "/boot/ipxe.efi",
+      dest: "{{ ironic_images_path }}/ipxe.efi"
+    }
+  - {
+      src: "/usr/lib/PXELINUX/pxelinux.0",
+      dest: "{{ ironic_images_path }}/pxelinux.0"
+    }
+  - {
+      src: "/usr/lib/syslinux/modules/bios/ldlinux.c32",
+      dest: "{{ ironic_images_path }}/ldlinux.c32"
+    }

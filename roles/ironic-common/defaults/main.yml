@@ -25,12 +25,6 @@ ironic_http_port : "{{ host.bind.IRN_CND.ipxe_http.port }}"
 ironic_ipxe_http_address: "{{ host.bind.IRN_CND.ipxe_http.ip_address }}"
 ironic_multi_tenancy_enabled: "{{ config_data | item('IRN.multi_tenancy_enabled', default=false) }}"
 
-ironic_host:
-  pxelinux : "/usr/lib/PXELINUX/pxelinux.0"
-  ldlinux : "/usr/lib/syslinux/modules/bios/ldlinux.c32"
-  ipxe : "/usr/lib/ipxe/undionly.kpxe"
-  ipxe_efi: "/boot/ipxe.efi"
-
 ironic_audit:
   configfile: "{{ ironic_service_conf_dir }}/ironic_api_audit_map.conf"
   log_location: "{{ IRN.audit.dir }}/ironic"

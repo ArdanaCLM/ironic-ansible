@@ -1,5 +1,5 @@
 #
-# (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
 # (c) Copyright 2017 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -40,17 +40,10 @@
 
 - name: ironic-conductor | install | Install dependencies
   become: yes
-  apt: name={{ item }} install_recommends=no state=latest force=yes
-  with_items:
-    - ipxe
-    - syslinux-common
-    - pxelinux
-    - ipmitool
-    - tftpd-hpa
-    - qemu-utils
-    - dosfstools
-    - open-iscsi
-    - rpm2cpio
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items: ironic_conductor_packages
 
 - include: ../../ironic-common/tasks/install.yml
   become: yes
