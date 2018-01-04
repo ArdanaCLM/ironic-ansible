@@ -36,3 +36,4 @@ ironic_flavor:
   boot_mode: "bios"
 
 ironic_region: "{{ IRN.regions | first }}"
+ironic_ca_file: "/etc/ssl/certs/ca-certificates.crt"

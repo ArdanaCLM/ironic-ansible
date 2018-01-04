@@ -20,7 +20,6 @@
 verbose = {{ ironic_verbose }}
 debug = {{ ironic_debug }}
 log_config_append = {{ ironic_log_config_append }}
-rpc_backend = {{ ironic_rpc.backend }}
 rpc_conn_pool_size = {{ ironic_rpc.conn_pool_size }}
 use_stderr = false
 use_syslog = false
@@ -28,6 +27,7 @@ notification_driver = {{ ironic_audit.notification_driver }}
 {% if ironic_multi_tenancy_enabled|bool %}
 enabled_network_interfaces = neutron,flat
 {% endif %}
+transport_url = rabbit://{{ ironic_rpc.hosts }}
 
 [audit]
 enabled = {{ ironic_audit.enable }}
@@ -37,10 +37,7 @@ audit_map_file = {{ ironic_audit.configfile }}
 policy_file = {{ ironic_policy_file }}
 
 [oslo_messaging_rabbit]
-rabbit_userid = {{ ironic_rpc.userid }}
-rabbit_password = {{ ironic_rpc.password }}
-rabbit_hosts = {{ ironic_rpc.hosts }}
-rabbit_use_ssl = {{ ironic_rpc.use_ssl }}
+ssl = {{ ironic_rpc.use_ssl }}
 rpc_conn_pool_size = {{ ironic_rpc.conn_pool_size }}
 kombu_reconnect_delay = {{ ironic_kombu_reconnect_delay }}
 

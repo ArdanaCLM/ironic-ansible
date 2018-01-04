@@ -27,6 +27,7 @@
     --os-endpoint-type internalURL
     --os-region-name {{ ironic_region }}
     --os-auth-url {{ ironic_keystone.auth_url }}
+    --os-cacert {{ ironic_ca_file }}
     flavor-list
   register: bm_flavor_check_result
 
@@ -41,6 +42,7 @@
     --os-endpoint-type internalURL
     --os-region-name {{ ironic_region }}
     --os-auth-url {{ ironic_keystone.auth_url }}
+    --os-cacert {{ ironic_ca_file }}
     {{ item }}
   with_items:
   - "flavor-create {{ ironic_flavor.name }} {{ ironic_flavor.id }}

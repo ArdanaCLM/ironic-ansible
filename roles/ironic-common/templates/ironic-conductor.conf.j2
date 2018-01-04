@@ -20,7 +20,6 @@
 verbose = {{ ironic_verbose }}
 debug = {{ ironic_debug }}
 log_config_append = {{ ironic_log_config_append }}
-rpc_backend = {{ ironic_rpc.backend }}
 rpc_conn_pool_size = {{ ironic_rpc.conn_pool_size }}
 enabled_drivers = {{ ironic_enabled_drivers }}
 rootwrap_config = {{ ironic_rootwrap_config_append }}
@@ -30,15 +29,13 @@ use_syslog = false
 {% if ironic_multi_tenancy_enabled|bool %}
 enabled_network_interfaces = neutron,flat
 {% endif %}
+transport_url = rabbit://{{ ironic_rpc.hosts }}
 
 [oslo_policy]
 policy_file = {{ ironic_policy_file }}
 
 [oslo_messaging_rabbit]
-rabbit_userid = {{ ironic_rpc.userid }}
-rabbit_password = {{ ironic_rpc.password }}
-rabbit_hosts = {{ ironic_rpc.hosts }}
-rabbit_use_ssl = {{ ironic_rpc.use_ssl }}
+ssl = {{ ironic_rpc.use_ssl }}
 rpc_conn_pool_size = {{ ironic_rpc.conn_pool_size }}
 kombu_reconnect_delay = {{ ironic_kombu_reconnect_delay }}
 
@@ -62,10 +59,7 @@ cafile = {{ ironic_ca_file }}
 region_name = {{ ironic_region }}
 
 [glance]
-glance_host = {{ ironic_glance.host }}
-glance_port = {{ ironic_glance.port }}
-glance_protocol = {{ ironic_glance.protocol }}
-
+auth_url = {{ ironic_cnd_admin.auth_uri }}
 {%- if agent_drivers_enabled|bool %}
 
 swift_temp_url_key = {{ ironic_swift.temp_url_key }}
@@ -79,7 +73,7 @@ glance_cafile = {{ ironic_ca_file }}
 
 [neutron]
 url = {{ ironic_neutron.url }}
-cleaning_network_uuid = {{ ironic_cleaning_network.uuid }}
+cleaning_network = {{ ironic_cleaning_network.uuid }}
 {% if ironic_multi_tenancy_enabled|bool %}
 provisioning_network_uuid = {{ ironic_provisioning_network.uuid }}
 {% endif %}
@@ -109,10 +103,12 @@ ipxe_boot_script = {{ ironic_images.ipxe_boot_script }}
 [deploy]
 http_root = {{ ironic_images.http_root }}
 http_url = {{ ironic_images.http_url }}
+default_boot_option = {{ ironic_default_boot_option }}
 
 [conductor]
 api_url = {{ ironic_cnd.url }}
 automated_clean = {{ ironic_automated_clean }}
+power_state_change_timeout = {{ ironic_power_state_change_timeout }}
 
 [oslo_messaging_notifications]
 topics = notifications
@@ -123,7 +119,7 @@ power_retry = {{ ironic_ilo.power_retry }}
 power_wait = {{ ironic_ilo.power_wait }}
 
 [ipmi]
-retry_timeout = {{ ironic_ipmi.retry_timeout  }}
+command_retry_timeout = {{ ironic_ipmi.command_retry_timeout  }}
 min_command_interval = {{ ironic_ipmi.min_command_interval  }}
 
 {%- if agent_drivers_enabled|bool %}
