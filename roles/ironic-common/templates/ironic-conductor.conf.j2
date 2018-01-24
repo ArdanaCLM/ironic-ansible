@@ -30,6 +30,9 @@ use_syslog = false
 enabled_network_interfaces = neutron,flat
 {% endif %}
 transport_url = rabbit://{{ ironic_rpc.hosts }}
+{% if ironic_boot_from_volume_enabled|bool %}
+enabled_storage_interfaces = cinder
+{% endif %}
 
 [oslo_policy]
 policy_file = {{ ironic_policy_file }}

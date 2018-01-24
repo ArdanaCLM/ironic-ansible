@@ -24,6 +24,7 @@ ironic_images_path : "/tftpboot"
 ironic_http_port : "{{ host.bind.IRN_CND.ipxe_http.port }}"
 ironic_ipxe_http_address: "{{ host.bind.IRN_CND.ipxe_http.ip_address }}"
 ironic_multi_tenancy_enabled: "{{ config_data | item('IRN.multi_tenancy_enabled', default=false) }}"
+ironic_boot_from_volume_enabled: "{{ config_data | item('IRN.boot_from_volume_enabled', default=false) }}"
 
 ironic_audit:
   configfile: "{{ ironic_service_conf_dir }}/ironic_api_audit_map.conf"
