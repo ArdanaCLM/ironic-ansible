@@ -17,19 +17,12 @@
 ---
 # Install Ironic Conductor
 
-# Enable virtual host for ironic
-- name:  ironic-conductor | start | Enable Ironic vhost (hlinux)
+- name:  ironic-conductor | start | Enable Ironic vhost
   become: yes
-  command: a2ensite ironic
-  when: ansible_os_family == 'Debian'
-
-- name:  ironic-conductor | start | Enable Ironic vhost (SUSE)
-  become: yes
-  template:
-    src: "ironic.conf.j2"
+  file:
+    src: "{{ apache2_vhost_dir }}/ironic.vhost"
     dest: "{{ apache2_vhost_dir }}/ironic.conf"
-    mode: 0644
-  when: ansible_os_family == 'Suse'
+    state: link
 
 # Make sure apache is running
 - name: ironic-conductor | start | Start apache if it is not running

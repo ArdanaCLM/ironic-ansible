@@ -15,18 +15,12 @@
 # under the License.
 #
 ---
-# Disable virtual host for ironic
-- name: ironic-conductor | stop | Disable Ironic vhost (hlinux)
-  become: yes
-  command: a2dissite ironic
-  when: ansible_os_family == 'Debian'
 
-- name: ironic-conductor | stop | Disable Ironic vhost (SUSE)
+- name: ironic-conductor | stop | Disable Ironic vhost
   become: yes
   file:
     state: absent
     path: "{{ apache2_vhost_dir }}/ironic.conf"
-  when: ansible_os_family == 'Suse'
 
 # Reload Apache
 - name: ironic-conductor | stop | Reload apache after disabling Ironic vhost
