@@ -43,11 +43,11 @@
   register: ardana_notify_ironic_conductor_restart_required
   when: write_conf_result.changed
 
-- name: ironic-conductor | configure | Copy Apache vhost config for Ironic
+- name: ironic-conductor | configure | Create Apache vhost config for Ironic
   become: yes
   template:
     src: "ironic.conf.j2"
-    dest: "{{ apache2_vhost_dir }}/ironic.conf"
+    dest: "{{ apache2_vhost_dir }}/ironic.vhost"
     mode: 0644
 
 - name: ironic-conductor | configure | Setup ironic user to allow sudo to run
