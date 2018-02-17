@@ -1,0 +1,75 @@
+#
+# (c) Copyright 2017-2018 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+---
+
+# NOTE(gyee): this is needed because we'll need to inject the CA
+# certificates into the ramdisk. To be able to do that we will need to
+# extract it into a tmp dir. For the extract (i.e. xz) to work, it must
+# have to proper file extension.
+# Also, we are making the following assumptions
+#   1. it is located in "/srv/tftpboot/openstack-ironic-image" dir
+#   2. the file name is 'iso'
+# If theose conditions ever change, we must update the code.
+- name: ironic-common | _suse_prepare_deploy_images | Copy ramdisk
+  become: yes
+  shell: >
+    cp /srv/tftpboot/openstack-ironic-image/initrd
+    {{ ironic_deploy_image.ramdisk }}
+
+# Copy the kernel to the same location as the others so they all can be
+# uploaded from the same place. This is merely for convenience and
+# consistency.
+# NOTE(gyee): We are making the following assumptions
+#   1. it is located in "/srv/tftpboot/openstack-ironic-image" dir
+#   2. the file name is 'vmlinux'
+# If theose conditions ever change, we must update the code.
+- name: ironic-common | _suse_prepare_deploy_images | Copy kernel
+  become: yes
+  shell: >
+    cp /srv/tftpboot/openstack-ironic-image/vmlinux
+    {{ ironic_deploy_image.kernel }}
+
+# NOTE(gyee): this is needed because we'll need to inject the CA
+# certificates into the iso. To be able to do that we will need to
+# extract it into a tmp dir. For the extract (i.e. iso) to work, it must
+# have to proper file extension.
+# Also, we are making the following assumptions
+#   1. it is located in "/srv/tftpboot/openstack-ironic-image" dir
+#   2. the file name is 'initrd'
+# If theose conditions ever change, we must update the code.
+- name: ironic-common | _suse_prepare_deploy_images | Copy iso
+  become: yes
+  shell: >
+    cp /srv/tftpboot/openstack-ironic-image/iso {{ ironic_deploy_image.iso }}
+
+- name: ironic-common | _suse_prepare_deploy_images | check for cert file
+  stat:
+    path: "{{ ironic_ca_file }}"
+  register: cert_file_result
+
+- name: ironic-common | _suse_prepare_deploy_images | Add cert into ramdisk
+  include: _suse_add_cert_ramdisk.yml
+  vars:
+    ramdisk_path: "{{ ironic_deploy_image.ramdisk }}"
+  become: yes
+  when: ramdisk_image_exists_result.stdout == "" and
+        cert_file_result.stat.exists == True
+
+- name: ironic-common | _suse_prepare_deploy_images | Add cert into iso
+  include: _suse_add_cert_iso.yml
+  become: yes
+  when: iso_image_exists_result.stdout == "" and
+        cert_file_result.stat.exists == True

@@ -1,0 +1,195 @@
+#
+# (c) Copyright 2018 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+---
+
+- name: ironic-common | _suse_add_cert_iso | Create temp directories
+  file:
+    path: "{{ ironic_iso_build_path }}"
+    state: directory
+    mode:  0755
+
+- name: ironic-common | _suse_add_cert_iso | Mount iso file
+  mount:
+    name: "{{ ironic_iso_mount_path }}"
+    src: "{{ ironic_deploy_image.iso }}"
+    opts: loop
+    fstype: iso9660
+    state: mounted
+
+- name: ironic-common | _suse_add_cert_iso | Copy files from iso to tmp directory
+  shell: >
+    cp -aRvf
+    "{{ ironic_iso_mount_path }}"/*
+    "{{ ironic_iso_build_path }}"/
+
+- name: ironic-common | _suse_add_cert_iso | Unmount iso file
+  mount:
+    name: "{{ ironic_iso_mount_path }}"
+    src: "{{ ironic_deploy_image.iso }}"
+    opts: loop
+    fstype: iso9660
+    state: unmounted
+
+- name: ironic-common | _suse_add_cert_iso | Remove fstab entry
+  mount:
+    name: "{{ ironic_iso_mount_path }}"
+    src: "{{ ironic_deploy_image.iso }}"
+    opts: loop
+    fstype: iso9660
+    state: absent
+
+# NOTE(gyee): assuming the image name in this pattern:
+# 'openstack-ironic-image.x86_64-*.gz'
+- name: ironic-common | _suse_add_cert_iso | Find the image gz file
+  shell: >
+    find . -maxdepth 1 -type f -name "openstack-ironic-image.x86_64-*.gz"
+    -exec basename {} \;
+  register: find_image_gz_result
+  failed_when: find_image_gz_result.stdout == ""
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+# NOTE(gyee): assuming the image name in this pattern:
+# 'openstack-ironic-image.x86_64-*.md5'
+- name: ironic-common | _suse_add_cert_iso | Find the image md5 file
+  shell: >
+    find . -maxdepth 1 -type f -name "openstack-ironic-image.x86_64-*.md5"
+    -exec basename {} \;
+  register: find_image_md5_result
+  failed_when: find_image_md5_result.stdout == ""
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic-common | _suse_add_cert_iso | Set compressed image file name
+  set_fact:
+    compressed_image_name: "{{ find_image_gz_result.stdout }}"
+
+# NOTE(gyee) we need to do this because Ansible regex_replace filter is
+# broken in 1.9 version. What a PITA!
+- name: ironic-common | _suse_add_cert_iso | Get uncompressed image file name
+  shell: >
+    echo {{ compressed_image_name }} | sed 's/.gz$//'
+  register: get_uncompressed_image_name_result
+
+- name: ironic-common | _suse_add_cert_iso | Set uncompressed image file name
+  set_fact:
+    uncompressed_image_name: "{{ get_uncompressed_image_name_result.stdout }}"
+
+- name: ironic-common | _suse_add_cert_iso | Extract image gz file
+  shell: >
+    gunzip -f {{ compressed_image_name }}
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic-common | _suse_add_cert_iso | Set tmp image mount dir
+  set_fact:
+    ironic_tmp_image_mount_dir: "{{ ironic_iso_build_path }}/tmp_image_mnt"
+
+- name: ironic-common | _suse_add_cert_iso | Create tmp image mount dir
+  file:
+    path: "{{ ironic_tmp_image_mount_dir }}"
+    state: directory
+    mode: 0755
+
+- name: ironic-common | _suse_add_cert_iso | Mount the image
+  shell: >
+    mount -o loop {{ uncompressed_image_name }}
+    {{ ironic_tmp_image_mount_dir }}
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic-common | _suse_add_cert_iso | Append cert file
+  shell: >
+    cat "{{ ironic_ca_file }}" >>
+    "{{ ironic_tmp_image_mount_dir }}/var/lib/ca-certificates/ca-bundle.pem"
+
+- name: ironic-common | _suse_add_cert_iso | Unmount the image
+  shell: >
+    umount {{ ironic_tmp_image_mount_dir }}
+
+- name: ironic-common | _suse_add_cert_iso | Clean up tmp image mount dir
+  file:
+    path: "{{ ironic_tmp_image_mount_dir }}"
+    state: absent
+    mode:  0755
+
+- name: ironic-common | _suse_add_cert_iso | Md5sum uncompressed image
+  shell: >
+    cat {{ uncompressed_image_name }} | md5sum - | cut -f 1 -d-
+  register: md5sum_uncompressed_image_result
+  failed_when: md5sum_uncompressed_image_result.stdout == ""
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic-common | _suse_add_cert_iso | Get uncomppressed image size
+  calculate_blocks_and_blocksize:
+    filename: "{{ ironic_iso_build_path }}/{{ uncompressed_image_name }}"
+  register: uncompressed_image_size_result
+
+- name: ironic-common | _suse_add_cert_iso | Compress the image
+  shell: >
+    gzip {{ uncompressed_image_name }}
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic_common | _suse_add_cert_iso | Get compressed image size
+  calculate_blocks_and_blocksize:
+    filename: "{{ ironic_iso_build_path }}/{{ compressed_image_name }}"
+  register: compressed_image_size_result
+
+- name: ironic_common | _suse_add_cert_iso | Update image md5 file
+  shell: >
+    echo {{ md5sum_uncompressed_image_result.stdout }} "   "
+    {{ uncompressed_image_size_result.blocks }} " "
+    {{ uncompressed_image_size_result.blocksize }} " "
+    {{ compressed_image_size_result.blocks }} " "
+    {{ compressed_image_size_result.blocksize }} >
+    {{ find_image_md5_result.stdout }}
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic-common | _suse_add_cert_iso | Install Package genisoimage
+  package:
+    name: genisoimage
+    state: present
+
+# NOTE(gyee): VERY IMPORTANT! We must use the same label when putting the ISO
+# back together. The label is associated with the MBR. Without it, the ISO
+# boot will fail with "Failed to find MBR identifier !".
+# Also, we are assuming that Kiwi is using the autogenerated hex format.
+# i.e. 0x51e568cb and this file is always under the boot/ directory. If that
+# assumption no longer holds, we must fix this code.
+- name: ironic-common | _suse_add_cert_iso | Find the original ISO label
+  shell: >
+    find . -maxdepth 1 -type f -name "0x*" -exec basename {} \;
+  register: find_iso_label_result
+  failed_when: find_iso_label_result.stdout == ""
+  args:
+    chdir: "{{ ironic_iso_build_path }}/boot"
+
+- name: ironic-common | _suse_add_cert_iso | Create new iso deploy image
+  shell: >
+    genisoimage -b boot/x86_64/loader/isolinux.bin -R -J -iso-level 4
+    -A "{{ find_iso_label_result.stdout }}"  -no-emul-boot -boot-info-table
+    -boot-load-size 4 -o {{ ironic_deploy_image.iso }} ./
+  args:
+    chdir: "{{ ironic_iso_build_path }}"
+
+- name: ironic-common | _suse_add_cert_iso | Clean up
+  file:
+    path: "{{ ironic_iso_build_path }}"
+    state: absent
+    mode:  0755

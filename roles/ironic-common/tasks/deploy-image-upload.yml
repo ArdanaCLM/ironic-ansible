@@ -16,7 +16,6 @@
 #
 ---
 
-
 - name: ironic-common | deploy-image-upload | check for iso
   shell: >
     OS_IDENTITY_API_VERSION=3 openstack
@@ -84,58 +83,45 @@
     msg: "Deploy kernel already uploaded"
   when: kernel_image_exists_result.stdout != ""
 
+- name: ironic-common | deploy-image-upload | Set need_upload_images fact
+  set_fact:
+    need_upload_images: 'Yes'
+  when: ramdisk_image_exists_result.stdout == "" or
+        kernel_image_exists_result.stdout == ""  or
+        iso_image_exists_result.stdout == ""
+
 - name: ironic-common | deploy-image-upload | update deploy Artifact venv cache
   become: yes
   install_package:
     cache: update
+  when: ansible_os_family == 'Debian'
 
 - name: ironic-common | deploy-image-upload | setup deploy Artifact Project
   become: yes
   install_package:
-    name: ironic_deploy_images
+    name: "{{ deploy_images_package_name }}"
     service: ironic-deploy-images
     state: present
-  when: ramdisk_image_exists_result.stdout == "" or
-        kernel_image_exists_result.stdout == ""  or
-        iso_image_exists_result.stdout == ""
+  when: need_upload_images is defined and
+        ansible_os_family == 'Debian'
 
-- name: ironic-common | deploy-image-upload | Find archive name
-  shell: ls {{ 'ironic-deploy-images' | jar_dir }}
-  register: archive_list_result
-  when: ramdisk_image_exists_result.stdout == "" or
-        kernel_image_exists_result.stdout == ""  or
-        iso_image_exists_result.stdout == ""
-
-- name: ironic-common | deploy-image-upload | Unarchive image tar
-        file
+- name: ironic-common | deploy-image-upload | setup deploy Artifact Project (Suse)
   become: yes
-  unarchive:
-    dest: "{{ ironic_deploy_image_tmp_dir }}"
-    src: "{{ 'ironic-deploy-images' | jar_dir }}/{{ item }}"
-    copy: no
-  with_items: (archive_list_result.stdout).splitlines()
-  when: ramdisk_image_exists_result.stdout == "" or
-        kernel_image_exists_result.stdout == ""  or
-        iso_image_exists_result.stdout == ""
+  package:
+    name: "{{ deploy_images_package_name }}"
+    state: present
+  when: need_upload_images is defined and
+        ansible_os_family == 'Suse'
 
-- name: ironic-common | deploy-image-upload | check for cert file
-  stat:
-    path: "{{ ironic_ca_file }}"
-  register: cert_file_result
+- name: ironic-common | deploy-image-upload | Prepare upload images
+  include: _debian_prepare_deploy_images.yml
+  when: need_upload_images is defined and
+        ansible_os_family == 'Debian'
 
-- name: ironic-common | deploy-image-upload | Add cert into ramdisk
-  include: _add_cert_ramdisk.yml
-  vars:
-    ramdisk_path: "{{ ironic_deploy_image.ramdisk }}"
-  become: yes
-  when: ramdisk_image_exists_result.stdout == "" and
-        cert_file_result.stat.exists == True
-
-- name: ironic-common | deploy-image-upload | Add cert into iso
-  include: _add_cert_iso.yml
-  become: yes
-  when: iso_image_exists_result.stdout == "" and
-        cert_file_result.stat.exists == True
+- name: ironic-common | deploy-image-upload | Prepare upload images (SuSE)
+  include: _suse_prepare_deploy_images.yml
+  when: need_upload_images is defined and
+        ansible_os_family == 'Suse'
 
 - name: ironic-common | deploy-image-upload | Upload deploy ramdisk
   run_once: True
@@ -222,16 +208,21 @@
     - "{{ ironic_deploy_image.ramdisk }}"
     - "{{ ironic_deploy_image.iso }}"
   become: yes
-  when: ramdisk_image_exists_result.stdout == "" or
-        kernel_image_exists_result.stdout == "" or
-        iso_image_exists_result.stdout == ""
+  when: need_upload_images is defined
 
 - name: ironic-common | deploy-image-upload | Remove Transient deploy Artifact
   become: yes
   install_package:
-    name: ironic_deploy_images
+    name: "{{ deploy_images_package_name }}"
     service: ironic-deploy-images
     state: absent
-  when: ramdisk_image_exists_result.stdout == "" or
-        kernel_image_exists_result.stdout == ""  or
-        iso_image_exists_result.stdout == ""
+  when: need_upload_images is defined and
+        ansible_os_family == 'Debian'
+
+- name: ironic-common | deploy-image-upload | Remove Transient deploy Artifact (Suse)
+  become: yes
+  zypper:
+    name: "{{ deploy_images_package_name }}"
+    state: absent
+  when: need_upload_images is defined and
+        ansible_os_family == 'Suse'
