@@ -54,7 +54,7 @@ ironic_rpc:
   hosts: >
     {% for x in _ironic_rabbit_hosts_list -%}
        {{ _ironic_rpc_userid ~ ':' ~ _ironic_rpc_passwd ~ '@' ~ x.host ~ ':' ~ x.port }}
-       {%- if not loop.last -%}, {% endif %}
+       {%- if not loop.last -%},{% endif %}
     {%- endfor %}
   use_ssl: "{{ IRN.consumes_FND_RMQ.members.private[0].use_tls }}"
   backend : "rabbit"
