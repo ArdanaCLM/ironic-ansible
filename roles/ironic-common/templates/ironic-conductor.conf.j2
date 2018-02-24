@@ -52,17 +52,35 @@ connection = {{ ironic_db_connection }}
 region_name = {{ ironic_region }}
 
 [keystone_authtoken]
-admin_user = {{ ironic_cnd_admin.user }}
-admin_password = {{ ironic_cnd_admin.password }}
-admin_tenant_name = {{ ironic_keystone_admin.tenant_name }}
-auth_uri = {{ ironic_cnd_admin.auth_uri_v2 }}
-identity_uri = {{ ironic_cnd_admin.identity_uri }}
-auth_version = {{ ironic_keystone_admin.auth_version_v2 }}
+username = {{ ironic_cnd_admin.user }}
+password = {{ ironic_cnd_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+auth_uri = {{ keystone_auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
 cafile = {{ ironic_ca_file }}
 region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
+
 
 [glance]
-auth_url = {{ ironic_cnd_admin.auth_uri }}
+username = {{ ironic_cnd_admin.user }}
+password = {{ ironic_cnd_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
+cafile = {{ ironic_ca_file }}
+region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
+
 {%- if agent_drivers_enabled|bool %}
 
 swift_temp_url_key = {{ ironic_swift.temp_url_key }}
@@ -74,7 +92,34 @@ swift_container = {{ ironic_swift.container }}
 
 glance_cafile = {{ ironic_ca_file }}
 
+[cinder]
+username = {{ ironic_cnd_admin.user }}
+password = {{ ironic_cnd_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
+cafile = {{ ironic_ca_file }}
+region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
+
 [neutron]
+username = {{ ironic_cnd_admin.user }}
+password = {{ ironic_cnd_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
+cafile = {{ ironic_ca_file }}
+region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
+
 url = {{ ironic_neutron.url }}
 cleaning_network = {{ ironic_cleaning_network.uuid }}
 {% if ironic_multi_tenancy_enabled|bool %}
@@ -121,6 +166,20 @@ driver = messaging
 power_retry = {{ ironic_ilo.power_retry }}
 power_wait = {{ ironic_ilo.power_wait }}
 
+[inspector]
+username = {{ ironic_api_admin.user }}
+password = {{ ironic_api_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
+cafile = {{ ironic_ca_file }}
+region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
+
 [ipmi]
 command_retry_timeout = {{ ironic_ipmi.command_retry_timeout  }}
 min_command_interval = {{ ironic_ipmi.min_command_interval  }}
@@ -140,5 +199,5 @@ auth_url = {{ ironic_cnd_admin.auth_uri }}
 username = {{ ironic_swift.glance_user }}
 password = {{ ironic_swift.glance_password}}
 project_name =  {{ ironic_swift.glance_tenant }}
-default_domain_name = default
+default_domain_name = Default
 {% endif %}
