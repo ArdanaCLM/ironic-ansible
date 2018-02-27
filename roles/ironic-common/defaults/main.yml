@@ -70,6 +70,11 @@ ironic_db_connection : >
      IRN.consumes_FND_MDB.vars.accounts.ironic.password | urlencode ~ '@' ~
      IRN.consumes_FND_MDB.vips.private[0].host ~ '/ironic?charset=utf8' }}{{ ironic_db_ssl }}
 
+# Keystone authtoken
+# auth_uri should point to a Keystone service from which users may
+# retrieve tokens.
+keystone_auth_uri: "{{ KEY_API.advertises.vips.public[0].url }}"
+
 ironic_keystone_admin:
   user: "{{ KEY_API.vars.keystone_admin_user }}"
   password: "{{ KEY_API.vars.keystone_admin_pwd | quote }}"

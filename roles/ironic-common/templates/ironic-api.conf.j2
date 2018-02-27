@@ -56,11 +56,16 @@ connection = {{ ironic_db_connection }}
 region_name = {{ ironic_region }}
 
 [keystone_authtoken]
-admin_user = {{ ironic_api_admin.user }}
-admin_password = {{ ironic_api_admin.password }}
-admin_tenant_name = {{ ironic_keystone_admin.tenant_name }}
-auth_uri = {{ ironic_api_admin.auth_uri_v2 }}
-identity_uri = {{ ironic_api_admin.identity_uri }}
-auth_version = {{ ironic_keystone_admin.auth_version_v2 }}
+username = {{ ironic_api_admin.user }}
+password = {{ ironic_api_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+auth_uri = {{ keystone_auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
 cafile = {{ ironic_ca_file }}
 region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
