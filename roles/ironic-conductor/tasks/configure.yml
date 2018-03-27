@@ -49,6 +49,7 @@
     src: "ironic.conf.j2"
     dest: "{{ apache2_vhost_dir }}/ironic.vhost"
     mode: 0644
+  register: ardana_notify_ironic_conductor_apache_reload
 
 - name: ironic-conductor | configure | Setup ironic user to allow sudo to run
         ironic-rootwrap without password

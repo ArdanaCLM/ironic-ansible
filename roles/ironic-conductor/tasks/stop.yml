@@ -21,14 +21,12 @@
   file:
     state: absent
     path: "{{ apache2_vhost_dir }}/ironic.conf"
+  register: ardana_notify_ironic_conductor_apache_reload
 
-# Reload Apache
-- name: ironic-conductor | stop | Reload apache after disabling Ironic vhost
-  become: yes
-  service:
-    name: apache2
-    state: reloaded
-  ignore_errors: yes
+- name: ironic-conductor  | stop | Reload apache after disabling Ironic vhost
+  include: "{{ playbook_dir }}/roles/FND-AP2/tasks/start_reload.yml"
+  vars:
+    apache_reload_requested: "{{ ardana_notify_ironic_conductor_apache_reload.changed }}"
 
 - name: ironic-conductor | stop | stop ironic-conductor service
   become: yes
