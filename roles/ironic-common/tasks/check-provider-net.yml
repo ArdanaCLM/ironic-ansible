@@ -1,6 +1,6 @@
 #
 # (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -25,7 +25,7 @@
     --os-project-domain-name {{ ironic_keystone_admin.default_domain }}
     --os-auth-url {{ ironic_cnd_admin.auth_uri }}
     --os-region-name {{ ironic_region }}
-    --os-cacert /etc/ssl/certs/ca-certificates.crt
+    --os-cacert {{ ironic_ca_file }}
     --os-endpoint-type internalURL
     net-show {{ ironic_cleaning_network.name }} -f value -F id
   environment:
@@ -41,7 +41,7 @@
     --os-project-domain-name {{ ironic_keystone_admin.default_domain }}
     --os-auth-url {{ ironic_cnd_admin.auth_uri }}
     --os-region-name {{ ironic_region }}
-    --os-cacert /etc/ssl/certs/ca-certificates.crt
+    --os-cacert {{ ironic_ca_file }}
     --os-endpoint-type internalURL
     net-show {{ ironic_provisioning_network.name }} -f value -F id
   environment:

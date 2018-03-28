@@ -209,7 +209,7 @@ ironic_ipmi:
 ironic_kombu_reconnect_delay : 5.0
 
 ## [ssl]
-ironic_ca_file : "/etc/ssl/certs/ca-certificates.crt"
+ironic_ca_file : "{{ trusted_ca_bundle }}"
 ironic_db_ssl: "{% if IRN.consumes_FND_MDB.vips.private[0].use_tls %}&ssl_ca={{ ironic_ca_file }} {% endif %}"
 
 ## [region]
