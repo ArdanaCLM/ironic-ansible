@@ -24,6 +24,15 @@
     dest: "{{ apache2_vhost_dir }}/ironic.conf"
     state: link
 
+# Make sure iSCSI Daemon process is running. This is needed by the classic
+# PXE drivers (i.e. pxe_ipmitool)
+- name: ironic-conductor | start | Start iscsid
+  become: yes
+  service:
+    name: iscsid
+    enabled: yes
+    state: started
+
 # Make sure apache is running
 - name: ironic-conductor | start | Start apache if it is not running
   become: yes
