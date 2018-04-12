@@ -146,11 +146,9 @@ ironic_glance:
 ironic_swift:
   temp_url_key : "{{ IRN_CND.vars.swift_temp_url_key }}"
   internal_endpoint: >
-    {% if agent_drivers_enabled|bool %}
-      {{ IRN_CND.consumes_SWF_PRX.vips.private[0].protocol ~ '://' ~
-         IRN_CND.consumes_SWF_PRX.vips.private[0].ip_address ~ ':' ~
-         IRN_CND.consumes_SWF_PRX.vips.private[0].port }}
-    {% endif %}
+    {{ IRN_CND.consumes_SWF_PRX.vips.private[0].protocol ~ '://' ~
+       IRN_CND.consumes_SWF_PRX.vips.private[0].ip_address ~ ':' ~
+       IRN_CND.consumes_SWF_PRX.vips.private[0].port }}
   container: "glance-{{ glance_cloud }}-{{ glance_cp }}-{{ glance_cluster }}"
   glance_user : >
     {{ IRN_CND.consumes_KEY_API.vars.keystone_glance_swift_user }}

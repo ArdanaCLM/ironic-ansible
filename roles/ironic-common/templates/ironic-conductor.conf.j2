@@ -191,6 +191,7 @@ swift_user_name = {{ ironic_swift.glance_user }}
 swift_user_password = {{ ironic_swift.glance_password }}
 swift_user_tenant_name = {{ ironic_swift.glance_tenant }}
 swift_endpoint_url = {{ ironic_swift.internal_endpoint }}
+endpoint_override = {{ ironic_swift.internal_endpoint }}/{{ swift_api_version_result.stdout }}/{{ swift_account_result.stdout }}
 swift_api_version = {{ swift_api_version_result.stdout }}
 swift_account = {{ swift_account_result.stdout }}
 
