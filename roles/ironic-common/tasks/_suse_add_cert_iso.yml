@@ -182,9 +182,15 @@
 
 - name: ironic-common | _suse_add_cert_iso | Create new iso deploy image
   shell: >
-    genisoimage -b boot/x86_64/loader/isolinux.bin -R -J -iso-level 4
-    -A "{{ find_iso_label_result.stdout }}"  -no-emul-boot -boot-info-table
-    -boot-load-size 4 -o {{ ironic_deploy_image.iso }} ./
+    genisoimage -b boot/x86_64/loader/isolinux.bin -R -J -pad -joliet-long
+    -iso-level 4
+    -A "{{ find_iso_label_result.stdout }}"
+    -boot-info-table -boot-load-size 4
+    -c boot/x86_64/boot.catalog -hide boot/x86_64/boot.catalog
+    -hide-joliet boot/x86_64/boot.catalog
+    -eltorito-alt-boot -b boot/x86_64/efi
+    -no-emul-boot -joliet-long -hide glump -hide-joliet glump
+    -o {{ ironic_deploy_image.iso }} ./
   args:
     chdir: "{{ ironic_iso_build_path }}"
 
