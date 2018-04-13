@@ -61,7 +61,7 @@
 - name: ironic-common | _debian_add_cert_iso | Install Package genisoimage
   package:
     name: genisoimage
-    state: latest
+    state: present
 
 - name: ironic-common | _debian_add_cert_iso | Create new iso deploy image
   shell: >

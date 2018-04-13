@@ -23,6 +23,7 @@
     src: "{{ apache2_vhost_dir }}/ironic.vhost"
     dest: "{{ apache2_vhost_dir }}/ironic.conf"
     state: link
+  register: ardana_notify_ironic_conductor_apache_reload
 
 # Make sure iSCSI Daemon process is running. This is needed by the classic
 # PXE drivers (i.e. pxe_ipmitool)
@@ -32,26 +33,17 @@
     name: iscsid
     enabled: yes
     state: started
+  register: ardana_notify_ironic_conductor_apache_reload
 
-# Make sure apache is running
-- name: ironic-conductor | start | Start apache if it is not running
-  become: yes
-  service:
-    name: apache2
-    state: started
-  register: ironic_apache_result
-
-- name: ironic-conductor | start | Reload if the server did not need starting
-  become: yes
-  service:
-    name: apache2
-    state: reloaded
-  when: not ironic_apache_result.changed
-
-- name: ironic-conductor | start | Allow installed Apache services
-        (keystone) to settle
-  pause:
-    seconds: 5
+- name: ironic-conductor  | start | Restart or reload apache
+  include: "{{ playbook_dir }}/roles/FND-AP2/tasks/start_reload.yml"
+  vars:
+    apache_reload_requested: "{{
+      ardana_notify_ironic_conductor_apache_reload is defined and
+      ardana_notify_ironic_conductor_apache_reload.changed }}"
+    apache_restart_requested: "{{
+      ardana_notify_ironic_common_restart_required is defined and
+      ardana_notify_ironic_common_restart_required.changed }}"
 
 - name: ironic-conductor | start | activate the latest installed version
   become: yes
