@@ -90,14 +90,12 @@ ironic_api_admin:
   user: "{{ IRN_API.consumes_KEY_API.vars.keystone_ironic_user }}"
   password: "{{ IRN_API.consumes_KEY_API.vars.keystone_ironic_password }}"
   auth_uri: "{{ IRN_API.consumes_KEY_API.vips.private[0].url }}/v3"
-  auth_uri_v2: "{{ IRN_API.consumes_KEY_API.vips.private[0].url }}/v2.0"
   identity_uri: "{{ IRN_API.consumes_KEY_API.vips.private[0].url }}"
 
 ironic_cnd_admin:
   user: "{{ IRN_CND.consumes_KEY_API.vars.keystone_ironic_user }}"
   password: "{{ IRN_CND.consumes_KEY_API.vars.keystone_ironic_password }}"
   auth_uri: "{{ IRN_CND.consumes_KEY_API.vips.private[0].url }}/v3"
-  auth_uri_v2: "{{ IRN_CND.consumes_KEY_API.vips.private[0].url }}/v2.0"
   identity_uri: "{{ IRN_CND.consumes_KEY_API.vips.private[0].url }}"
 
 ## [api]
