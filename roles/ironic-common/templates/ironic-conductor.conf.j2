@@ -21,11 +21,17 @@ verbose = {{ ironic_verbose }}
 debug = {{ ironic_debug }}
 log_config_append = {{ ironic_log_config_append }}
 rpc_conn_pool_size = {{ ironic_rpc.conn_pool_size }}
-enabled_drivers = {{ ironic_enabled_drivers }}
 rootwrap_config = {{ ironic_rootwrap_config_append }}
 parallel_image_downloads = true
 use_stderr = false
 use_syslog = false
+enabled_hardware_types = {{ ironic_enabled_hardware_types }}
+enabled_boot_interfaces = {{ ironic_enabled_boot_interfaces }}
+enabled_power_interfaces = {{ ironic_enabled_power_interfaces }}
+enabled_console_interfaces = {{ ironic_enabled_console_interfaces }}
+enabled_raid_interfaces = {{ ironic_enabled_raid_interfaces }}
+enabled_management_interfaces = {{ ironic_enabled_management_interfaces }}
+enabled_inspect_interfaces = {{ ironic_enabled_inspect_interfaces }}
 {% if ironic_multi_tenancy_enabled|bool %}
 enabled_network_interfaces = neutron,flat
 {% endif %}
@@ -57,7 +63,7 @@ password = {{ ironic_cnd_admin.password }}
 auth_type = password
 project_name = {{ ironic_keystone_admin.tenant_name }}
 auth_url = {{ ironic_api_admin.auth_uri }}
-auth_uri = {{ keystone_auth_uri }}
+www_authenticate_uri = {{ keystone_auth_uri }}
 auth_version = {{ ironic_keystone_admin.auth_version }}
 cafile = {{ ironic_ca_file }}
 region_name = {{ ironic_region }}
@@ -90,8 +96,6 @@ swift_account = {{ swift_account_result.stdout }}
 swift_container = {{ ironic_swift.container }}
 {% endif %}
 
-glance_cafile = {{ ironic_ca_file }}
-
 [cinder]
 username = {{ ironic_cnd_admin.user }}
 password = {{ ironic_cnd_admin.password }}
@@ -119,8 +123,10 @@ region_name = {{ ironic_region }}
 # compatible with Keystone V3
 project_domain_name = {{ ironic_keystone_admin.default_domain }}
 user_domain_name = {{ ironic_keystone_admin.default_domain }}
+# NOTE(gyee) we should be using the private VIP to talk
+# amongst controllers
+valid_interfaces = private
 
-url = {{ ironic_neutron.url }}
 cleaning_network = {{ ironic_cleaning_network.uuid }}
 {% if ironic_multi_tenancy_enabled|bool %}
 provisioning_network_uuid = {{ ironic_provisioning_network.uuid }}

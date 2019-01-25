@@ -64,6 +64,14 @@ agent_drivers_enabled : "{{ config_data.IRN.enable_agent_drivers | default(true)
 
 ironic_enabled_drivers: "pxe_ipmitool, pxe_ilo{%- if agent_drivers_enabled|bool %}, agent_ilo, agent_ipmitool{%- if oneview_enabled|bool %}, agent_pxe_oneview {% endif %} {% endif %}"
 
+ironic_enabled_hardware_types: "ilo,ipmi"
+ironic_enabled_boot_interfaces: "ilo-virtual-media,ilo-pxe,pxe"
+ironic_enabled_management_interfaces: "ilo,impitool"
+ironic_enabled_power_interfaces: "ilo,impitool"
+ironic_enabled_console_interfaces: "ilo"
+ironic_enabled_raid_interfaces: "agent"
+ironic_enabled_inspect_interfaces: "ilo,inspector"
+
 ## [database]
 ironic_db_connection : >
   {{ 'mysql+pymysql://' ~ IRN.consumes_FND_MDB.vars.accounts.ironic.username ~ ':' ~
@@ -115,7 +123,6 @@ ironic_cnd:
 
 ## [neutron]
 ironic_neutron:
-  url : "{{ IRN_CND.consumes_NEU_SVR.vips.private[0].url }}"
   admin_pwd: "{{ KEY_API.vars.keystone_admin_pwd }}"
 
 ironic_cleaning_network:
