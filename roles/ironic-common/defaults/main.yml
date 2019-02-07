@@ -66,8 +66,8 @@ ironic_enabled_drivers: "pxe_ipmitool, pxe_ilo{%- if agent_drivers_enabled|bool 
 
 ironic_enabled_hardware_types: "ilo,ipmi"
 ironic_enabled_boot_interfaces: "ilo-virtual-media,ilo-pxe,pxe"
-ironic_enabled_management_interfaces: "ilo,impitool"
-ironic_enabled_power_interfaces: "ilo,impitool"
+ironic_enabled_management_interfaces: "ilo,ipmitool"
+ironic_enabled_power_interfaces: "ilo,ipmitool"
 ironic_enabled_console_interfaces: "ilo"
 ironic_enabled_raid_interfaces: "agent"
 ironic_enabled_inspect_interfaces: "ilo,inspector"
