@@ -27,6 +27,7 @@ use_stderr = false
 use_syslog = false
 enabled_hardware_types = {{ ironic_enabled_hardware_types }}
 enabled_boot_interfaces = {{ ironic_enabled_boot_interfaces }}
+enabled_deploy_interfaces = {{ ironic_enabled_deploy_interfaces }}
 enabled_power_interfaces = {{ ironic_enabled_power_interfaces }}
 enabled_console_interfaces = {{ ironic_enabled_console_interfaces }}
 enabled_raid_interfaces = {{ ironic_enabled_raid_interfaces }}
@@ -160,7 +161,6 @@ http_url = {{ ironic_images.http_url }}
 default_boot_option = {{ ironic_default_boot_option }}
 
 [conductor]
-api_url = {{ ironic_cnd.url }}
 automated_clean = {{ ironic_automated_clean }}
 power_state_change_timeout = {{ ironic_power_state_change_timeout }}
 

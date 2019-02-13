@@ -62,15 +62,16 @@ ironic_rpc:
 
 agent_drivers_enabled : "{{ config_data.IRN.enable_agent_drivers | default(true) }}"
 
-ironic_enabled_drivers: "pxe_ipmitool, pxe_ilo{%- if agent_drivers_enabled|bool %}, agent_ilo, agent_ipmitool{%- if oneview_enabled|bool %}, agent_pxe_oneview {% endif %} {% endif %}"
-
-ironic_enabled_hardware_types: "ilo,ipmi"
-ironic_enabled_boot_interfaces: "ilo-virtual-media,ilo-pxe,pxe"
-ironic_enabled_management_interfaces: "ilo,ipmitool"
-ironic_enabled_power_interfaces: "ilo,ipmitool"
-ironic_enabled_console_interfaces: "ilo"
+# based on
+# https://docs.openstack.org/ironic/pike/admin/upgrade-to-hardware-types.html
+ironic_enabled_hardware_types: "ipmi,ilo{%- if agent_drivers_enabled|bool %}{%- if oneview_enabled|bool %},oneview{% endif %}{% endif %}"
+ironic_enabled_boot_interfaces: "pxe,ilo-pxe{%- if agent_drivers_enabled|bool %},ilo-virtual-media{% endif %}"
+ironic_enabled_deploy_interfaces: "iscsi{%- if agent_drivers_enabled|bool %},direct{%- if oneview_enabled|bool %},oneview-direct{% endif %}{% endif %}"
+ironic_enabled_inspect_interfaces: "inspector,ilo{%- if agent_drivers_enabled|bool %}{%- if oneview_enabled|bool %},oneview{% endif %}{% endif %}"
+ironic_enabled_management_interfaces: "ipmitool,ilo{%- if agent_drivers_enabled|bool %}{%- if oneview_enabled|bool %},oneview{% endif %}{% endif %}"
+ironic_enabled_power_interfaces: "ipmitool,ilo{%- if agent_drivers_enabled|bool %}{%- if oneview_enabled|bool %},oneview{% endif %}{% endif %}"
+ironic_enabled_console_interfaces: "no-console,ilo"
 ironic_enabled_raid_interfaces: "agent"
-ironic_enabled_inspect_interfaces: "ilo,inspector"
 
 ## [database]
 ironic_db_connection : >
@@ -114,12 +115,6 @@ ironic_api:
     {{ IRN_API.advertises.vips.private[0].protocol ~ '://' ~
        IRN_API.advertises.vips.private[0].ip_address ~ ':' ~
        IRN_API.advertises.vips.private[0].port }}
-
-ironic_cnd:
-  url : >
-    {{ IRN_CND.consumes_IRN_API.vips.private[0].protocol ~ '://' ~
-       IRN_CND.consumes_IRN_API.vips.private[0].ip_address ~ ':' ~
-       IRN_CND.consumes_IRN_API.vips.private[0].port }}
 
 ## [neutron]
 ironic_neutron:
