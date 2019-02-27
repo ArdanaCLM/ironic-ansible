@@ -73,6 +73,20 @@ region_name = {{ ironic_region }}
 project_domain_name = {{ ironic_keystone_admin.default_domain }}
 user_domain_name = {{ ironic_keystone_admin.default_domain }}
 
+[service_catalog]
+username = {{ ironic_cnd_admin.user }}
+password = {{ ironic_cnd_admin.password }}
+auth_type = password
+project_name = {{ ironic_keystone_admin.tenant_name }}
+auth_url = {{ ironic_api_admin.auth_uri }}
+www_authenticate_uri = {{ keystone_auth_uri }}
+auth_version = {{ ironic_keystone_admin.auth_version }}
+cafile = {{ ironic_ca_file }}
+region_name = {{ ironic_region }}
+# NOTE(gyee): set the domain to 'Default' so it is forward
+# compatible with Keystone V3
+project_domain_name = {{ ironic_keystone_admin.default_domain }}
+user_domain_name = {{ ironic_keystone_admin.default_domain }}
 
 [glance]
 username = {{ ironic_cnd_admin.user }}
@@ -124,9 +138,9 @@ region_name = {{ ironic_region }}
 # compatible with Keystone V3
 project_domain_name = {{ ironic_keystone_admin.default_domain }}
 user_domain_name = {{ ironic_keystone_admin.default_domain }}
-# NOTE(gyee) we should be using the private VIP to talk
+# NOTE(gyee) we should be using the internal VIP to talk
 # amongst controllers
-valid_interfaces = private
+valid_interfaces = internal
 
 cleaning_network = {{ ironic_cleaning_network.uuid }}
 {% if ironic_multi_tenancy_enabled|bool %}
