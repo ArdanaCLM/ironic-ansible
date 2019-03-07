@@ -95,6 +95,7 @@ swift_endpoint_url = {{ ironic_swift.internal_endpoint }}
 swift_api_version = {{ swift_api_version_result.stdout }}
 swift_account = {{ swift_account_result.stdout }}
 swift_container = {{ ironic_swift.container }}
+swift_temp_url_duration = {{ ironic_swift.temp_url_duration }}
 {% endif %}
 
 [cinder]
