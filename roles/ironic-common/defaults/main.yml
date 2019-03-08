@@ -156,6 +156,7 @@ ironic_swift:
     {{ IRN_CND.consumes_KEY_API.vars.keystone_glance_swift_password }}
   glance_tenant : >
     {{ IRN_CND.consumes_KEY_API.vars.keystone_glance_swift_tenant }}
+  temp_url_duration: 3600
 
 ## [oneview]
 oneview_enabled : "{{ config_data.IRN.enable_oneview }}"
