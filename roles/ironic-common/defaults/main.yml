@@ -130,7 +130,7 @@ ironic_provisioning_network:
 
 ironic_deploy_image_tmp_dir: "/tmp"
 ironic_deploy_image:
-  version: "ARDANA5.0"
+  version: "ARDANA9.0"
   ramdisk: "{{ ironic_deploy_image_tmp_dir }}/{{ ramdisk_filename }}"
   kernel: "{{ ironic_deploy_image_tmp_dir }}/{{ kernel_filename }}"
   iso: "{{ ironic_deploy_image_tmp_dir }}/{{ iso_filename }}"
