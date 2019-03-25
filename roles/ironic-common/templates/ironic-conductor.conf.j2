@@ -142,6 +142,7 @@ user_domain_name = {{ ironic_keystone_admin.default_domain }}
 # NOTE(gyee) we should be using the internal VIP to talk
 # amongst controllers
 valid_interfaces = internal
+url_timeout = {{ ironic_neutron.url_timeout }}
 
 cleaning_network = {{ ironic_cleaning_network.uuid }}
 {% if ironic_multi_tenancy_enabled|bool %}

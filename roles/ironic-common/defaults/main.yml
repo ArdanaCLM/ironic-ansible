@@ -119,6 +119,7 @@ ironic_api:
 ## [neutron]
 ironic_neutron:
   admin_pwd: "{{ KEY_API.vars.keystone_admin_pwd }}"
+  url_timeout: 60
 
 ironic_cleaning_network:
   name: "{{ config_data.IRN.cleaning_network }}"
