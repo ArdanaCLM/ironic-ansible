@@ -179,7 +179,7 @@ ironic_images:
                        security=apparmor crashkernel=256M console=tty0
                        console=ttyS0"
   http_root : "{{ ironic_images_path }}"
-  http_url : "http://{{ ironic_ipxe_http_address }}:{{ ironic_http_port }}"
+  http_url : "http://{{ ironic_ipxe_http_address | ipwrap }}:{{ ironic_http_port }}"
   ipxe_enabled : "True"
   pxe_config_template: '$pybasedir/drivers/modules/ipxe_config.template'
   pxe_bootfile_name : "undionly.kpxe"

@@ -16,5 +16,5 @@
 #
 ---
 
-ironic_api_local_url: 'http://{{ host.bind.IRN_API.internal.ip_address }}:{{ host.bind.IRN_API.internal.port }}'
+ironic_api_local_url: 'http://{{ host.bind.IRN_API.internal.ip_address | ipwrap }}:{{ host.bind.IRN_API.internal.port }}'
 ironic_api_vip_url: '{{ IRN_API.advertises.vips.private[0].url }}'
